@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+
+  <head>
+    <meta charset="utf-8">
+    <title>FrontEndTask</title>
+  </head>
+<body>
+
+    <input type ='text'/>
+    <button onclick="newFolder()">AddFolder</button>
+    <button onclick="delFolder()">Delete Folder</button>
+
+
+    <ul name = 'list'>
+    </ul>
+    <script>
+    function ls(event)
+    {
+        var cl = document.getElementsByTagName('li');
+        var len = cl.length;
+        for (let i = 0; i<len; i++ )
+            cl[len-1-i].remove();
+        var nPath = '';
+        if(event)
+            nPath = event.currentTarget.innerText;
+        var myInput = document.getElementsByTagName("input")[0];
+        var fullPath = nPath;
+        if(myInput.getAttribute('name'))
+            fullPath = myInput.getAttribute('name') + '\\' + nPath ;
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '\\Folder' + '\\' + fullPath, false);
+        xhr.send();
+        var reqans = JSON.parse(xhr.responseText);
+        var ulist = document.getElementsByName('list')[0];
+        for (let i =0; i<reqans.length; i++)
+        {
+            var el = document.createElement('li');
+            el.innerText = reqans[i][0];
+            ulist.appendChild(el);
+            el.onclick = ls;
+        }
+        myInput.setAttribute('name', fullPath);
+    }
+    ls();
+    function newFolder() {
+        var myInput = document.getElementsByTagName("input")[0];
+        var fullPath = myInput.getAttribute('name');
+        if (!fullPath)
+            fullPath = '';
+        else
+            fullPath = '\\' + fullPath;
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '\\Folder' + fullPath + '?folder=0&name=' + myInput.value, false);
+        xhr.send();
+        ls();
+    }
+    function delFolder() {
+        var myInput = document.getElementsByTagName("input")[0];
+        var fullPath = myInput.getAttribute('name');
+        if (!fullPath)
+            fullPath = '';
+        else
+            fullPath = '\\' + fullPath;
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '\\Folder' + fullPath + '?folder=1&name=' + myInput.value, false);
+        xhr.send();
+        if (xhr.status != 200) {
+        alert( xhr.status + ': ' + xhr.statusText + 'Возможно папка не пуста' );
+        }
+        ls();
+    }
+    </script>
+
+  </body>
+</html>
