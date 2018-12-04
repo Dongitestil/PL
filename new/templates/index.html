@@ -5,71 +5,81 @@
     <title>FrontEndTask</title>
   </head>
 <body>
-
-    <input type ='text'/>
-    <button onclick="newFolder()">AddFolder</button>
-    <button onclick="delFolder()">Delete Folder</button>
-
-
-    <ul name = 'list'>
+	<dir class='input'>
+		<button onclick="add_dir()">Add Dir</button>
+		<button onclick="del()">Delete</button>
+		<button onclick="go()">Go To</button>
+		<br>
+		<input type ='text' id="n"/>
+	</dir>
+    <ul name = 'dir_list'>
+		<button onclick="back()">Back to root</button>
     </ul>
     <script>
-    function ls(event)
-    {
-        var cl = document.getElementsByTagName('li');
-        var len = cl.length;
-        for (let i = 0; i<len; i++ )
-            cl[len-1-i].remove();
-        var nPath = '';
-        if(event)
-            nPath = event.currentTarget.innerText;
-        var myInput = document.getElementsByTagName("input")[0];
-        var fullPath = nPath;
-        if(myInput.getAttribute('name'))
-            fullPath = myInput.getAttribute('name') + '\\' + nPath ;
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', '\\Folder' + '\\' + fullPath, false);
-        xhr.send();
-        var reqans = JSON.parse(xhr.responseText);
-        var ulist = document.getElementsByName('list')[0];
-        for (let i =0; i<reqans.length; i++)
+	var cur_path = '';
+	var coun = 0;
+	
+	function del(){
+		var input = document.getElementById("n").value;
+		var request = new XMLHttpRequest();
+		var body = 'req_path=' + input;
+		request.open('DELETE','/del', false);
+		request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		request.send(body);
+		dir_list_request(cur_path);
+	}
+	
+	function add_dir(){
+		var input = document.getElementById("n").value;
+		var request = new XMLHttpRequest();
+		var body = 'new_dir=' + input;
+		request.open('POST','/add_dir', false);
+		request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		request.send(body);
+		dir_list_request(cur_path);
+	}
+	
+	function go(){
+		var input = document.getElementById("n").value;
+		dir_list_request(input);
+	}
+	
+	function back(){
+		coun = 0;
+		cur_path = '';
+		dir_list_request('');
+	}
+	
+	function dir_list(respons)
+	{
+		shobi_chisto_bilo()
+		var dir_list = document.getElementsByName('dir_list')[0];
+        for (let i =0; i<respons.length; i++)
         {
             var el = document.createElement('li');
-            el.innerText = reqans[i][0];
-            ulist.appendChild(el);
-            el.onclick = ls;
+            el.innerText =cur_path + respons[i];
+			dir_list.appendChild(el);
         }
-        myInput.setAttribute('name', fullPath);
-    }
-    ls();
-    function newFolder() {
-        var myInput = document.getElementsByTagName("input")[0];
-        var fullPath = myInput.getAttribute('name');
-        if (!fullPath)
-            fullPath = '';
-        else
-            fullPath = '\\' + fullPath;
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', '\\Folder' + fullPath + '?folder=0&name=' + myInput.value, false);
-        xhr.send();
-        ls();
-    }
-    function delFolder() {
-        var myInput = document.getElementsByTagName("input")[0];
-        var fullPath = myInput.getAttribute('name');
-        if (!fullPath)
-            fullPath = '';
-        else
-            fullPath = '\\' + fullPath;
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', '\\Folder' + fullPath + '?folder=1&name=' + myInput.value, false);
-        xhr.send();
-        if (xhr.status != 200) {
-        alert( xhr.status + ': ' + xhr.statusText + 'Возможно папка не пуста' );
-        }
-        ls();
-    }
+	}
+	
+	function dir_list_request(path){
+		var request = new XMLHttpRequest();
+		if(coun != 0)
+			cur_path = path + '\\'
+		request.open('GET','/dir_list?path=' + path, false);
+		request.send();
+		var respons = JSON.parse(request.responseText);
+		dir_list(respons);
+		coun = 1;
+	}
+	
+	function shobi_chisto_bilo(){
+		var cl = document.getElementsByTagName('li');
+			var len = cl.length;
+			for (let i = 0; i<len; i++ )
+			cl[len-1-i].remove();
+	}
+	dir_list_request('');
     </script>
-
   </body>
 </html>
