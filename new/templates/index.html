@@ -26,6 +26,7 @@
 		request.open('DELETE','/del', false);
 		request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 		request.send(body);
+		coun = 0;
 		dir_list_request(cur_path);
 	}
 	
@@ -36,6 +37,7 @@
 		request.open('POST','/add_dir', false);
 		request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 		request.send(body);
+		coun = 0;
 		dir_list_request(cur_path);
 	}
 	
